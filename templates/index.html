@@ -2,29 +2,29 @@
 <head>
     <title>Light Me Up</title>
     <meta charset="UTF-8">
-    <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
             
 </head>
-<body>
-   Please select your desired color settings in RGB form. 
-    <div>
+<body style="font-family: 'Open Sans', sans-serif; position: relative; background: #01579B">
+    <h1 style="text-align: center; font-size: 4em; color: white;">Light Me Up</h1>
+    <h4 style="text-align: center; font-size: 1.5em; color: #CFD8DC;">Control the UB ACM Hackspace LED settings</h4>
+    <div class="labels" style="margin-left: 35%;
+       margin-top: 5%;
+       font-size: 30px;">
+    <div style="padding: 2%; color:white; ">
         <label for="red">Red</label>
         <input type="color" id="red" name="red" value="#e66465">
     </div>
-    
-    <div>
+    <div style="padding: 2%; color:white;">
         <label for="green">Green</label>
         <input type="color" id="green" name="green" value="#33cc33">
     </div>
-
-    <div>
+    <div style="padding: 2%; color:white;">
         <label for="blue">Blue</label>
         <input type="color" id="blue" name="blue" value="#0066ff">    
     </div>
+</div>
 
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
 </html>
