@@ -26,7 +26,7 @@ char ssid[] = "Snakes and Flakes";
 char pass[] = "anguswhatsthewifi";
 
 // Server to connect to.
-char server[] = "0beb9d75.ngrok.io";
+char server[] = "lightmeup.herokuapp.com";
 
 // WiFi client variables.
 WiFiClient client;
@@ -321,7 +321,7 @@ void httpRequest() {
     
     if (client.connect(server, 80)) {
       client.println("GET /data HTTP/1.1");
-      client.println("Host: 0beb9d75.ngrok.io");
+      client.println("Host: lightmeup.herokuapp.com");
       client.println("Connection: close");
       client.println();
   

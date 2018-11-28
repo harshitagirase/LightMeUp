@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__) #instance of the Flask class
@@ -40,11 +41,5 @@ def result():
 
 if __name__ == '__main__':
     # app.run(debug=True, host='0.0.0.0')
-    app.run(host='0.0.0.0')
-
-
-# get and post route for getting and updating some config on the server that the feather can pull from and update values for the fastled library
-# a way to pick RGB colors 
-# delay for rotating colors 
-
+    app.run(host='0.0.0.0', port=os.getenv('PORT', 5000))
 
