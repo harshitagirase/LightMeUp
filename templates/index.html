@@ -8,9 +8,47 @@
 
             
 </head>
-<body>
-    <h1 style="text-align: center; font-size: 4em; color: white;">Light Me Up</h1>
-    <h4 style="text-align: center; font-size: 1.5em; color: #CFD8DC;">Control the UB ACM Hackspace LED settings</h4>
+<body style="font-family: 'Open Sans', sans-serif; background: white; position: relative;">
+    <h1 style="text-align: center; font-size: 4em; color: #01579B;">Light Me Up</h1>
+    <h4 style="text-align: center; font-size: 1.5em; color: #01579B;">Control the UB ACM Hackspace LED settings using the form below</h4>
+    <div class="container">
+    <form action="" style="padding-top: 4%;">
+        Select a mode: 
+        <label>
+            <input type="radio" name="mode" value="default" checked><span>Default</span>
+        </label>
+        <label>
+            <input type="radio" name="mode" value="fade"><span>Fade</span>
+        </label>
+        <label>
+            <input type="radio" name="mode" value="blink"><span>Blink</span><br>
+        </label>
+        Choose first color in RGB format:
+        <label>
+            R <input type="textarea" name="color" value="">
+        </label> 
+        <label>
+            G <input type="textarea" name="color" value="">
+        </label>
+        <label>
+            B <input type="textarea" name="color" value="">
+        </label><br><br>
+        Choose second color in RGB format:
+        <label>
+            R <input type="textarea" name="color" value="">
+        </label> 
+        <label>
+            G <input type="textarea" name="color" value="">
+        </label>
+        <label>
+            B <input type="textarea" name="color" value="">
+        </label><br><br>
+        <div style="align-content: center; ">
+            <input type="submit" value="Submit form">
+        </div>
+    </form>
+</div>
+
     
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
