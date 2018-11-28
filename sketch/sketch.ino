@@ -2,8 +2,10 @@
 #include <WiFi101.h>
 #include <FastLED.h>
 
-#define NUMS_OF_LEDS 300
+#define NUM_OF_LEDS 300
 #define PIN 11
+
+#define MAX_TICK 100
 
 #define READ_DONE 0
 #define READ_MODE 1
@@ -24,28 +26,35 @@ char server[] = "0beb9d75.ngrok.io";
 WiFiClient client;
 
 // LED setup
-CRGB leds[NUMS_OF_LEDS];
+CRGB leds[NUM_OF_LEDS];
 
 int state = READ_MODE;
 
-String mode = "default";
-int led1r = 255;
-int led1g = 255;
-int led1b = 255;
-int led2r = 0;
-int led2g = 0;
-int led2b = 0;
+String mode = "fade";
+int led1r = 5;
+int led1g = 50;
+int led1b = 5;
+int led2r = 50;
+int led2g = 5;
+int led2b = 50;
 
 unsigned long lastConnectionTime = 0;            // last time you connected to the server, in milliseconds
-const unsigned long postingInterval = 10L * 1000L; // delay between updates, in millisecond
+unsigned long lastTickTime = 0;            // last time tick is updated, in milliseconds
+unsigned int tick = 0;
+unsigned int fadeIndexPos = 0;
+const unsigned long postingInterval = 10L * 1000L; // delay between polling, in millisecond
+const unsigned long tickInterval = 1L; // delay between ticks, in millisecond
+
+// Variables for fade mode
+int colorToShow = 0;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
   FastLED.setMaxPowerInVoltsAndMilliamps(4,2000); 
-  FastLED.addLeds<NEOPIXEL, PIN>(leds, NUMS_OF_LEDS);
+  FastLED.addLeds<NEOPIXEL, PIN>(leds, NUM_OF_LEDS);
   
-  for (int i = 0; i < NUMS_OF_LEDS; i++) {
-    leds[i] = CRGB::White;
+  for (int i = 0; i < NUM_OF_LEDS; i++) {
+    leds[i] = CRGB(205, 4, 30);
   }
   FastLED.show();
   
@@ -54,7 +63,7 @@ void setup() {
   while (!Serial);
 
   // Booting: Yellow
-  for (int i = 0; i < NUMS_OF_LEDS; i++) {
+  for (int i = 0; i < NUM_OF_LEDS; i++) {
     leds[i] = CRGB(255, 204, 0);
   }
   FastLED.show();
@@ -64,14 +73,14 @@ void setup() {
 
     // WiFi shield not working: Red
     while (true) {
-      for (int i = 0; i < NUMS_OF_LEDS; i++) {
+      for (int i = 0; i < NUM_OF_LEDS; i++) {
         leds[i] = CRGB(204, 0, 51);
       }
       
       FastLED.show();
       delay(1000);
       
-      for (int i = 0; i < NUMS_OF_LEDS; i++) {
+      for (int i = 0; i < NUM_OF_LEDS; i++) {
         leds[i] = CRGB::Black;
       }
       
@@ -81,7 +90,7 @@ void setup() {
   }
 
   // Connecting: Pink
-  for (int i = 0; i < NUMS_OF_LEDS; i++) {
+  for (int i = 0; i < NUM_OF_LEDS; i++) {
     leds[i] = CRGB(255, 71, 117);
   }
   FastLED.show();
@@ -101,7 +110,7 @@ void setup() {
   printWiFiStatus();
   
   // Connected: Green
-  for (int i = 0; i < NUMS_OF_LEDS; i++) {
+  for (int i = 0; i < NUM_OF_LEDS; i++) {
     leds[i] = CRGB(73, 102, 100);
   }
   FastLED.show();
@@ -111,6 +120,20 @@ void setup() {
 void loop() {
   if (millis() - lastConnectionTime > postingInterval) {
     httpRequest();
+  }
+
+  
+  if (millis() - lastTickTime > tickInterval) {
+    tick = tick > MAX_TICK ? 0 : tick + 1;
+
+    if (tick % 5 == 0) {
+        fadeIndexPos = fadeIndexPos > NUM_OF_LEDS ? 0 : fadeIndexPos + 1;
+        if (fadeIndexPos == 0) {
+          colorToShow = colorToShow == 0 ? 1 : 0;
+        }
+    }
+    
+    lastTickTime = millis();
   } 
 
   String data = "";
@@ -141,7 +164,7 @@ void loop() {
           if (c != ',') {
             data.concat(c);
           } else {
-            newLed1r = data.toInt();
+            newLed1r = int(data.toInt());
             data = "";
             state = READ_LED_1_GREEN;
           }
@@ -150,7 +173,7 @@ void loop() {
           if (c != ',') {
             data.concat(c);
           } else {
-            newLed1g = data.toInt();
+            newLed1g = int(data.toInt());
             data = "";
             state = READ_LED_1_BLUE;
           }
@@ -159,7 +182,7 @@ void loop() {
           if (c != ':') {
             data.concat(c);
           } else {
-            newLed1b = data.toInt();
+            newLed1b = int(data.toInt());
             data = "";
             state = READ_LED_2_RED;
           }
@@ -168,7 +191,7 @@ void loop() {
           if (c != ',') {
             data.concat(c);
           } else {
-            newLed2r = data.toInt();
+            newLed2r = int(data.toInt());
             data = "";
             state = READ_LED_2_GREEN;
           }
@@ -177,7 +200,7 @@ void loop() {
           if (c != ',') {
             data.concat(c);
           } else {
-            newLed2g = data.toInt();
+            newLed2g = int(data.toInt());
             data = "";
             state = READ_LED_2_BLUE;
           }
@@ -186,7 +209,7 @@ void loop() {
           if (c != ':') {
             data.concat(c);
           } else {
-            newLed2b = data.toInt();
+            newLed2b = int(data.toInt());
             data = "";
             state = READ_MODE;
           }
@@ -202,7 +225,48 @@ void loop() {
   }
 
   if (foundBody) {
-    if (mode != newMode || led1r != newLed1r || led1g != newLed1g || led1b != newLed1b || led2r != newLed2r || led2g != newLed2g || led2b != newLed2b) {
+    if (
+        mode != newMode ||
+        led1r != newLed1r ||
+        led1g != newLed1g ||
+        led1b != newLed1b ||
+        led2r != newLed2r ||
+        led2g != newLed2g ||
+        led2b != newLed2b
+      ) {
+      Serial.println("change detected");
+      Serial.print(mode);
+      Serial.print(" -> ");
+      Serial.println(newMode);
+      
+      Serial.print(led1r, DEC);
+      Serial.print(" -> ");
+      Serial.println(newLed1r, DEC);
+
+      Serial.print(led1r, DEC);
+      Serial.print(" -> ");
+      Serial.println(newLed1r, DEC);
+
+      Serial.print(led1g, DEC);
+      Serial.print(" -> ");
+      Serial.println(newLed1g, DEC);
+
+      Serial.print(led1b, DEC);
+      Serial.print(" -> ");
+      Serial.println(newLed1b, DEC);
+
+      Serial.print(led2r, DEC);
+      Serial.print(" -> ");
+      Serial.println(newLed2r, DEC);
+
+      Serial.print(led2g, DEC);
+      Serial.print(" -> ");
+      Serial.println(newLed2g, DEC);
+
+      Serial.print(led2b, DEC);
+      Serial.print(" -> ");
+      Serial.println(newLed2b, DEC);
+      
       mode = newMode;
       led1r = newLed1r;
       led1g = newLed1g;
@@ -210,65 +274,58 @@ void loop() {
       led2r = newLed2r;
       led2g = newLed2g;
       led2b = newLed2b;
-      
-      Serial.println(mode);
-      Serial.println(led1r);
-      Serial.println(led1g);
-      Serial.println(led1b);
-      Serial.println(led2r);
-      Serial.println(led2g);
-      Serial.println(led2b);
     }
   }
+
+  // Now set the leds.
+  if (mode == "fade") {
+    if (colorToShow) {
+      leds[fadeIndexPos] = CRGB(led1r, led1g, led1b);  
+    } else {
+      leds[fadeIndexPos] = CRGB(led2r, led2g, led2b); 
+    }
+    
+  } else if (mode == "blink") {
+    for (int i = 0; i < NUM_OF_LEDS; i++) {
+      if (tick < (MAX_TICK / 2)) {
+        leds[i] = CRGB(led1r, led1g, led1b);
+      } else {
+        leds[i] = CRGB(led2r, led2g, led2b);
+      }
+    }
+    
+  } else {
+    // Default is a solid color
+    for (int i = 0; i < NUM_OF_LEDS; i++) {
+      leds[i] = CRGB(led1r, led1g, led1b);
+    }
+  }
+  
+  FastLED.show();
 }
 
-//  for (int i = 0; i < NUMS_OF_LEDS; i++) {
-//    leds[i] = CRGB::White;
-//    FastLED.show();
-//    delay(1);
-//    leds[i] = CRGB::Green;
-//  }
-//
-//  for (int i = 0; i < NUMS_OF_LEDS; i++) {
-//    leds[i] = CRGB::Red;
-//    FastLED.show();
-//    delay(1);
-//    leds[i] = CRGB::Blue;
-//  }
-//
-//  for (int i = 0; i < NUMS_OF_LEDS; i++) {
-//    leds[i] = CRGB::Black;
-//    FastLED.show();
-//    delay(1);
-//    leds[i] = CRGB::Red;
-//  }
-//
-//  for (int i = 0; i < NUMS_OF_LEDS; i++) {
-//    leds[i] = CRGB::Black;
-//    FastLED.show();
-//    delay(1);
-//    leds[i] = CRGB::White;
-//  }
-
 void httpRequest() {
-  // close any connection before send a new request.
-  // This will free the socket on the WiFi shield
-  client.stop();
-
   // if there's a successful connection:
-  if (client.connect(server, 80)) {
-    Serial.println("connecting...");
-    client.println("GET /data HTTP/1.1");
-    client.println("Host: 0beb9d75.ngrok.io");
-    client.println("Connection: close");
-    client.println();
-
-    // note the time that the connection was made:
-    lastConnectionTime = millis();
-  } else {
-    // if you couldn't make a connection:
-    Serial.println("connection failed");
-  }
+//  while (true) {
+    // close any connection before send a new request.
+    // This will free the socket on the WiFi shield
+    client.stop();
+    
+    if (client.connect(server, 80)) {
+      client.println("GET /data HTTP/1.1");
+      client.println("Host: 0beb9d75.ngrok.io");
+      client.println("Connection: close");
+      client.println();
+  
+      // note the time that the connection was made:
+      lastConnectionTime = millis();
+//      break;
+      
+    } else {
+      // if you couldn't make a connection:
+      Serial.println("connection failed");
+    }
+//  }
 }
 
 void printWiFiStatus() {
