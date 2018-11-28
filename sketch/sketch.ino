@@ -9,7 +9,7 @@ char ssid[] = "Honor 6X";
 char pass[] = "twowordsallcaps";
 int status = WL_IDLE_STATUS;
 
-char server[] = "www.google.com";
+char server[] = "http://66df3690.ngrok.io/data";
 WiFiClient client;
 
 CRGB leds[NUMS_OF_LEDS];
