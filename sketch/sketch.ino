@@ -2,11 +2,15 @@
 #include <WiFi101.h>
 #include <FastLED.h>
 
+// Configuration for connected LED Strip.
 #define NUM_OF_LEDS 300
 #define PIN 11
 
+// The maximum number of counting ticks used for LED modes.
+// The lower the faster.
 #define MAX_TICK 100
 
+// Enums used for state machine. Do not modify these.
 #define READ_DONE 0
 #define READ_MODE 1
 #define READ_LED_1_RED 2
@@ -15,15 +19,19 @@
 #define READ_LED_2_RED 5
 #define READ_LED_2_GREEN 6
 #define READ_LED_2_BLUE 7
+// --- Seriously.
 
-// WiFi configuration
+// WiFi Configuration.
 char ssid[] = "Snakes and Flakes";
 char pass[] = "anguswhatsthewifi";
+
+// Server to connect to.
+char server[] = "0beb9d75.ngrok.io";
+
+// WiFi client variables.
+WiFiClient client;
 int status = WL_IDLE_STATUS;
 
-// Server to connect to
-char server[] = "0beb9d75.ngrok.io";
-WiFiClient client;
 
 // LED setup
 CRGB leds[NUM_OF_LEDS];
