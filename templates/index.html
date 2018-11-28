@@ -15,43 +15,45 @@
                 margin-left: 20%;
             }
     </style>
-
             
 </head>
 <body style="font-family: 'Open Sans', sans-serif; background: white; position: relative;">
     <h1 style="text-align: center; font-size: 4em; color: #01579B;">Light Me Up</h1>
     <h4 style="text-align: center; font-size: 1.5em; color: #01579B;">Control the UB ACM Hackspace LED settings using the form below</h4>
     <div class="container">
-    <form action="" style="padding-top: 4%; margin-left: 30%;">
+    <form action="/form" method="POST" padding-top: 4%; margin-left: 30%;">
         <h6><div style="padding: 1%">Select a mode:</div>
         <label>
-            <input type="radio" name="mode" value="default"><span>Default</span>
+            <input type="radio" name="mode" value="default" 
+            {% if mode == "default" %}checked="checked"{% endif %}><span>Default</span>
         </label>
         <label>
-            <input type="radio" name="mode" value="fade"><span>Fade</span>
+            <input type="radio" name="mode" value="fade"
+            {% if mode == "fade" %}checked="checked"{% endif %}><span>Fade</span>
         </label>
         <label>
-            <input type="radio" name="mode" value="blink"><span>Blink</span><br>
+            <input type="radio" name="mode" value="blink"
+            {% if mode == "blink" %}checked="checked"{% endif %}><span>Blink</span><br>
         </label>
         <div style="padding: 1%">Choose first color in RGB format:</div> 
         <label>
-            R <input type="textarea" name="color" value="">
+            R <input type="textarea" name="red1" value="{{red_1}}">
         </label> 
         <label>
-            G <input type="textarea" name="color" value="">
+            G <input type="textarea" name="green1" value="{{green_1}}">
         </label>
         <label>
-            B <input type="textarea" name="color" value="">
+            B <input type="textarea" name="blue1" value="{{blue_1}}">
         </label><br><br>
         <div style="padding: 1%">Choose second color in RGB format:</div>
         <label>
-            R <input type="textarea" name="color" value="">
+            R <input type="textarea" name="red2" value="{{red_2}}">
         </label> 
         <label>
-            G <input type="textarea" name="color" value="">
+            G <input type="textarea" name="green2" value="{{green_2}}">
         </label>
         <label>
-            B <input type="textarea" name="color" value="">
+            B <input type="textarea" name="blue2" value="{{blue_2}}">
         </label></h6> <br><br>
         <div style="align-content: center; ">
             <input type="submit" value="Submit form">
