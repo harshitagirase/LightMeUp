@@ -5,6 +5,16 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main.css') }}">
+    <style> 
+            input[type=submit] {
+                background-color: #01579B;
+                size: 5em;
+                color: white;
+                padding: 1.5%;
+                align-self: center;
+                margin-left: 20%;
+            }
+    </style>
 
             
 </head>
@@ -12,10 +22,10 @@
     <h1 style="text-align: center; font-size: 4em; color: #01579B;">Light Me Up</h1>
     <h4 style="text-align: center; font-size: 1.5em; color: #01579B;">Control the UB ACM Hackspace LED settings using the form below</h4>
     <div class="container">
-    <form action="" style="padding-top: 4%;">
-        Select a mode: 
+    <form action="" style="padding-top: 4%; margin-left: 30%;">
+        <h6><div style="padding: 1%">Select a mode:</div>
         <label>
-            <input type="radio" name="mode" value="default" checked><span>Default</span>
+            <input type="radio" name="mode" value="default"><span>Default</span>
         </label>
         <label>
             <input type="radio" name="mode" value="fade"><span>Fade</span>
@@ -23,7 +33,7 @@
         <label>
             <input type="radio" name="mode" value="blink"><span>Blink</span><br>
         </label>
-        Choose first color in RGB format:
+        <div style="padding: 1%">Choose first color in RGB format:</div> 
         <label>
             R <input type="textarea" name="color" value="">
         </label> 
@@ -33,7 +43,7 @@
         <label>
             B <input type="textarea" name="color" value="">
         </label><br><br>
-        Choose second color in RGB format:
+        <div style="padding: 1%">Choose second color in RGB format:</div>
         <label>
             R <input type="textarea" name="color" value="">
         </label> 
@@ -42,7 +52,7 @@
         </label>
         <label>
             B <input type="textarea" name="color" value="">
-        </label><br><br>
+        </label></h6> <br><br>
         <div style="align-content: center; ">
             <input type="submit" value="Submit form">
         </div>
