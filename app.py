@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 
 app = Flask(__name__) #instance of the Flask class
 mode = 'default'
@@ -21,14 +21,21 @@ def data_endpoint():
 
 @app.route('/form', methods=['POST']) #allow POST requests
 def result():
-    mode = request.form('mode')
-    red_1 = request.form('red_1')
-    green_1 = request.form('green_1')
-    blue_1 = request.form('blue_1')
-    red_2 = request.form('red_2')
-    green_2 = request.form('green_2')
-    blue_2 = request.form('blue_2')
-    return str(request.form)
+    global mode
+    mode = request.form['mode']
+    global red_1
+    red_1 = request.form['red1']
+    global green_1
+    green_1 = request.form['green1']
+    global blue_1
+    blue_1 = request.form['blue1']
+    global red_2
+    red_2 = request.form['red2']
+    global green_2
+    green_2 = request.form['green2']
+    global blue_2
+    blue_2 = request.form['blue2']
+    return redirect("/")
 
 
 if __name__ == '__main__':
