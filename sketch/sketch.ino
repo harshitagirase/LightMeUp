@@ -32,12 +32,14 @@ char server[] = "lightmeup.herokuapp.com";
 WiFiClient client;
 int status = WL_IDLE_STATUS;
 
-
 // LED setup
 CRGB leds[NUM_OF_LEDS];
 
-int state = READ_MODE;
+// Tick and polling configurations.
+const unsigned long postingInterval = 3L * 1000L; // delay between polling, in millisecond
+const unsigned long tickInterval = 1L; // delay between ticks, in millisecond
 
+// Variables to store webserver configurations.
 String mode = "fade";
 int led1r = 5;
 int led1g = 50;
@@ -46,36 +48,42 @@ int led2r = 50;
 int led2g = 5;
 int led2b = 50;
 
+// Tick and polling related variables.
 unsigned long lastConnectionTime = 0;            // last time you connected to the server, in milliseconds
 unsigned long lastTickTime = 0;            // last time tick is updated, in milliseconds
 unsigned int tick = 0;
 unsigned int fadeIndexPos = 0;
-const unsigned long postingInterval = 10L * 1000L; // delay between polling, in millisecond
-const unsigned long tickInterval = 1L; // delay between ticks, in millisecond
 
-// Variables for fade mode
+// Variable for state machine for parsing the body of HTTP response
+int state = READ_MODE;
+
+// Variables for fade modes.
 int colorToShow = 0;
 
-// the setup function runs once when you press reset or power the board
 void setup() {
-  FastLED.setMaxPowerInVoltsAndMilliamps(4,2000); 
+  // Set up LEDs. This also fixes the flickering issue.
+  FastLED.setMaxPowerInVoltsAndMilliamps(4,2000);
   FastLED.addLeds<NEOPIXEL, PIN>(leds, NUM_OF_LEDS);
-  
+
+  // Clear out previous settings.
   for (int i = 0; i < NUM_OF_LEDS; i++) {
     leds[i] = CRGB(205, 4, 30);
   }
   FastLED.show();
   
-  WiFi.setPins(8,7,4,2);
-  Serial.begin(9600);
+  WiFi.setPins(8,7,4,2); // Enable WiFi module
+
+  // Wait for Serial to connect
+  Serial.begin(9600); 
   while (!Serial);
 
-  // Booting: Yellow
+  // Booting: Yellow LEDs
   for (int i = 0; i < NUM_OF_LEDS; i++) {
     leds[i] = CRGB(255, 204, 0);
   }
   FastLED.show();
 
+  // If the WiFi module is missing, blink red and don't do anything else..
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println("WiFi shield not present");
 
@@ -97,7 +105,7 @@ void setup() {
     }
   }
 
-  // Connecting: Pink
+  // Connecting to a WiFi network: Pink
   for (int i = 0; i < NUM_OF_LEDS; i++) {
     leds[i] = CRGB(255, 71, 117);
   }
@@ -106,34 +114,34 @@ void setup() {
   Serial.print("Attempting to connect to SSID: ");
   Serial.println(ssid);
 
-  // attempt to connect to WiFi network:
+  // Attempt to connect to WiFi network
   while (status != WL_CONNECTED) {
-    // Connect to WPA/WPA2 network:
     status = WiFi.begin(ssid, pass);
     Serial.print(".");
-    // wait 10 seconds for retry:
+    // Wit 10 seconds for next attempt
     delay(10000);
   }
   
   printWiFiStatus();
   
-  // Connected: Green
+  // Connected: show green LEDs
   for (int i = 0; i < NUM_OF_LEDS; i++) {
-    leds[i] = CRGB(73, 102, 100);
+    leds[i] = CRGB(10, 102, 0);
   }
   FastLED.show();
 }
  
-// the loop function runs over and over again forever
 void loop() {
+  // Update millisecond timestamp for posting.
   if (millis() - lastConnectionTime > postingInterval) {
     httpRequest();
   }
-
   
+  // Update millisecond timestamp for ticks
   if (millis() - lastTickTime > tickInterval) {
     tick = tick > MAX_TICK ? 0 : tick + 1;
-
+    
+    // These are used for the fade effect.
     if (tick % 5 == 0) {
         fadeIndexPos = fadeIndexPos > NUM_OF_LEDS ? 0 : fadeIndexPos + 1;
         if (fadeIndexPos == 0) {
@@ -144,6 +152,7 @@ void loop() {
     lastTickTime = millis();
   } 
 
+  // Variables to store the split chunks in.
   String data = "";
   String newMode = "";
   int newLed1r = 0;
@@ -157,6 +166,7 @@ void loop() {
   int foundBody = 0;
   while (client.available()) {
     char c = client.read();
+    // Begin the state machine to parse the chunks when we found the body
     if (foundBody) {
       switch (state) {
         case READ_MODE:
@@ -227,11 +237,13 @@ void loop() {
       }
     }
     
+    // The body starts with a dollar sign.
     if (c == '$') {
       foundBody = 1;
     }
   }
 
+  // Only apply changes if there are any only.
   if (foundBody) {
     if (
         mode != newMode ||
@@ -285,7 +297,7 @@ void loop() {
     }
   }
 
-  // Now set the leds.
+  // Now set the LEDs effects.
   if (mode == "fade") {
     if (colorToShow) {
       leds[fadeIndexPos] = CRGB(led1r, led1g, led1b);  
@@ -313,9 +325,7 @@ void loop() {
 }
 
 void httpRequest() {
-  // if there's a successful connection:
-//  while (true) {
-    // close any connection before send a new request.
+    // Close any connection before send a new request.
     // This will free the socket on the WiFi shield
     client.stop();
     
@@ -327,24 +337,18 @@ void httpRequest() {
   
       // note the time that the connection was made:
       lastConnectionTime = millis();
-//      break;
       
     } else {
-      // if you couldn't make a connection:
       Serial.println("connection failed");
+      // Fail silently here, we don't want to change the LEDs to tell people that its disconnected.
     }
-//  }
 }
 
+// Helper function to print WiFi status.
 void printWiFiStatus() {
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
-
-  // print your WiFi shield's IP address:
-  IPAddress ip = WiFi.localIP();
-  Serial.print("IP Address: ");
-  Serial.println(ip);
 
   // print the received signal strength:
   long rssi = WiFi.RSSI();
