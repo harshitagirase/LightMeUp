@@ -9,7 +9,7 @@ def index():
 
 @app.route('/data')
 def data_endpoint():
-    return 'default'
+    return '$fade@127,127,127:255,255,255:'
 
 
 if __name__ == '__main__':
