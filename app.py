@@ -32,7 +32,8 @@ def result():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    # app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0')
 
 
 # get and post route for getting and updating some config on the server that the feather can pull from and update values for the fastled library
